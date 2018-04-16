@@ -8,8 +8,14 @@ curl -L https://raw.githubusercontent.com/docker/compose/$(docker-compose versio
 # Crear usuario y grupo para manipular docker
 sudo groupadd docker
 sudo adduser pc-docker
+
 mkdir /home/pc-docker/.ssh
 cp /root/.ssh/authorized_keys /home/pc-docker/.ssh/authorized_keys
-sudo usermod -aG docker pc-docker
+
+sudo chmod 755 /home/pc-docker/.ssh 
+sudo cp /root/.ssh/authorized_keys  /home/pc-docker/.ssh/authorized_keys
+sudo chmod 644 /home/pc-docker/.ssh/authorized_keys 
+
+sudo usermod -aG docker,sudo pc-docker
 docker run hello-world
 
