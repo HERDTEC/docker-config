@@ -1,0 +1,15 @@
+# Docker compose
+sudo apt-get install curl
+curl -L https://github.com/docker/compose/releases/download/1.8.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose
+sudo chmod +x /usr/local/bin/docker-compose
+sudo docker-compose --version
+# Autocompletado de docker-compose
+curl -L https://raw.githubusercontent.com/docker/compose/$(docker-compose version --short)/contrib/completion/bash/docker-compose > /etc/bash_completion.d/docker-compose
+# Crear usuario y grupo para manipular docker
+sudo groupadd docker
+sudo adduser pc-docker
+mkdir /home/pc-docker/.ssh
+cp /root/.ssh/authorized_keys /home/pc-docker/.ssh/authorized_keys
+sudo usermod -aG docker pc-docker
+docker run hello-world
+
