@@ -1,0 +1,1 @@
+OPTIONS='--log-level=debug -H tcp://0.0.0.0:2375'

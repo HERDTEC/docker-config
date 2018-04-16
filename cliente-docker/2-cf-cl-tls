@@ -1,0 +1,30 @@
+#!/bin/bash
+source ../param
+#########################
+# script para MAC OS PARA OTROS ENTORNOS EXPORTAR POR CONSOLA
+#export DOCKER_HOST=tcp://192.241.208.23:2375"
+#export DOCKER_TLS_VERIFY=1
+  source ~/.bash_profile
+ERROR = 0
+{
+   docker ps
+}||{
+  ERROR=1
+}
+if [ "$ERROR" -eq "1" ]; then
+  if [ -f  ~/.bash_profile ];
+  then
+    echo "# added by User">> ~/.bash_profile
+    echo "export DOCKER_HOST=tcp://$IP_MY_HOST:2375">> ~/.bash_profile
+    echo 'export DOCKER_TLS_VERIFY=1'>> ~/.bash_profile
+    source ~/.bash_profile
+     echo "SE HA CONFIGURADO VARIABLES EN OSX"
+  else
+    echo "LO SENTIMOS NO HEMOS PODIDO CONFIGURAR SUS VARIABLES"
+    echo "manualmente ejecutar los comandos"
+    echo "export DOCKER_HOST=tcp://$IP_MY_HOST:2375 && export DOCKER_TLS_VERIFY=1"
+  fi
+
+else
+   echo "DOCKER ESTA ACTIVO"
+fi

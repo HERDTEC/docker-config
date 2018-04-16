@@ -1,0 +1,4 @@
+ /bin/bash 0-install instalando docker linux
+ /bin/bash 1-add-opt-dock-systemd Anade la gestion de docker con systemd
+ /bin/bash 2-cf-tls   Crea llaves y levanta el servicio de docker con tls
+ /bin/bash run   Corre todos los anteriores scripts para que este en marcha

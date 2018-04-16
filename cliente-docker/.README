@@ -1,0 +1,2 @@
+/bin/bash 2-cf-cl-tls
+/bin/bash 1-cpy-f-cl $1 $2 $3

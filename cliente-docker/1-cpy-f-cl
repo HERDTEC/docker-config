@@ -1,0 +1,118 @@
+#!/bin/bash
+source ../param
+
+COMANDO=""
+SERV_REMOTO=""
+FOLDER=""
+INDICE=""
+DESTINO=~/.docker
+
+
+
+if [ "$1" == "--help" ]; then
+  echo "***********************************************************************";
+  echo "Primer parametro: Nombre del folder donde estan las credenciales  ";
+  echo "Segundo parametro: Indice de los nombres del archivo si es en blanco - ";
+  echo "Tercer parametro: local/remoto  ";
+  echo "***********************************************************************";
+  exit
+fi
+
+if [ "$#" -eq "1" ] || [ "$#" -gt "3" ]; then
+  echo "Debe enviar al menos 2 argumentos, Mayor infomacion --help  ";
+  exit
+
+fi
+echo "********************************************************"
+if [ "$#" -eq "2" ];  then
+    echo "copiando desde path local...."
+    COMANDO=cp
+    SERV_REMOTO=""
+    FOLDER="$1"
+    INDICE="$2"
+fi
+
+if [ "$#" -eq "3" ]; then
+
+  FOLDER="$1"
+  INDICE="$2"
+  if [ "$3" == "remoto" ]; then
+    echo "copiando desde path remoto......"
+    SERV_REMOTO="$US_REM@$IP_MY_HOST:"
+    COMANDO="scp -r"
+  else
+     echo "copiando desde path local...."
+    SERV_REMOTO="";
+    COMANDO=cp
+  fi
+fi
+if [ "$INDICE" == "-" ]; then
+   INDICE=""
+fi
+echo "********************************************************"
+
+PTH_COPIA_ORIGEN="$FOLDER"
+
+
+
+echo "Path origen de copia: $PTH_COPIA_ORIGEN"
+echo "Path destino de copia: $DESTINO"
+echo "Servidor: $SERV_REMOTO"
+
+
+
+if [ -d $DESTINO ];
+then
+   echo "La carpeta ~/.docker esta lista "
+else
+	echo "La carpeta ~/.docker se ha creado"
+  mkdir ~/.docker
+fi
+
+if [ -f "$DESTINO/cert.pem" ];
+then
+   echo "Se esta eliminando el anterior certificado"
+    chmod 777 $DESTINO/cert.pem
+   rm $DESTINO/cert.pem
+fi
+
+
+
+if [ -f $DESTINO/client.csr ];
+then
+   echo "Se esta eliminando el anterior csr"
+   chmod 777 $DESTINO/client.csr
+   rm $DESTINO/client.csr
+fi
+
+if [ -f $DESTINO/key.pem ];
+then
+   echo "Se esta eliminando la anterior clave"
+   chmod 777 $DESTINO/key.pem
+   rm $DESTINO/key.pem
+fi
+
+if [ -f $DESTINO/ca.pem ];
+then
+   echo "Se esta eliminando la anterior clave"
+   chmod 777 $DESTINO/ca.pem
+   rm $DESTINO/ca.pem
+fi
+
+########client1-cert.pem  client1.csr  client1-key.pem
+COMANDO1="$COMANDO $SERV_REMOTO$PTH_COPIA_ORIGEN/client$INDICE-cert.pem $DESTINO/cert.pem"
+echo "Comando: $COMANDO1"
+$COMANDO1
+
+################### csr no necesario
+#COMANDO1_2="$COMANDO $SERV_REMOTO$PTH_COPIA_ORIGEN/client$INDICE.csr  $DESTINO/client.csr"
+#echo "Comando: $COMANDO1_2"
+#$COMANDO1_2
+
+COMANDO2="$COMANDO $SERV_REMOTO/etc/docker/ca.pem  $DESTINO/ca.pem"
+echo "Comando: $COMANDO2"
+$COMANDO2
+
+COMANDO3="$COMANDO $SERV_REMOTO$PTH_COPIA_ORIGEN/client$INDICE-key.pem $DESTINO/key.pem"
+echo "Comando: $COMANDO3"
+$COMANDO3

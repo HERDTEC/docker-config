@@ -1,0 +1,19 @@
+#!/bin/bash
+#importar archivo de instalacion
+echo "**********************************************";
+echo "*     ANADIO ARCHIVO PARA GETION DE DEMONIO  *";
+echo "*     direccion: /etc/default/docker_opt     *";
+echo "**********************************************";
+service docker stop
+cp conf_home/docker.service /lib/systemd/system/docker.service
+cp conf_home/docker_opt /etc/default/docker_opt
+systemctl daemon-reload
+service docker start 
+service docker status
+echo "**********************************************";
+echo "*        SE FINALIZO LA OPERACION            *";
+echo "*  archivo creado: /etc/default/docker_opt   *";
+echo "* archivo modificado: /etc/default/docker_opt*";
+echo "* servicio docker activo con nueva configura *";
+echo "**********************************************";
+

@@ -1,0 +1,5 @@
+sudo apt-get install ufw
+cp conf_home/ufw /etc/default/ufw
+ufw enable
+ufw reload
+ufw allow 4243/tcp

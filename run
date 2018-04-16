@@ -1,0 +1,3 @@
+/bin/bash 0-install
+/bin/bash 1-add-opt-dock-systemd
+/bin/bash 2-cf-tls2

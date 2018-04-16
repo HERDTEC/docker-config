@@ -1,0 +1,139 @@
+#!/bin/bash
+EVC=~/docker-tls-temp
+
+echo "**********************************************";
+echo "*     CONFIGURACION TLS SEGURIDAD            *";
+echo "**********************************************";
+
+if [ -d ~/docker-tls-temp ];
+then
+	rm -r ~/docker-tls-temp
+	mkdir ~/docker-tls-temp
+else
+	mkdir ~/docker-tls-temp
+fi
+
+cd $EVC
+######
+#AUTORIDAD CERTIFICADORA
+
+echo "CREANDO CLAVE PRIVADA LA ENTIDAD AUTO";
+openssl genrsa -aes256 -out ca-key.pem 2048
+
+echo "GENERANDO UN CERTIFICADO PARA LA AUTORIDAD CERTIFICADORA ca.pem";
+openssl req -new -x509 -days 365 -key ca-key.pem -sha256 -out ca.pem
+
+
+
+#######
+#SERVIDOR
+echo "CREANDO CLAVE PRIVADA DEL SERVIDOR";
+openssl genrsa -out server-key.pem 2048
+
+echo "CREANDO CSR DEL SERVIDOR";
+openssl req -subj "/CN=LNK" -new -key server-key.pem -out server.csr
+
+echo "FIRMAR LA CLAVE DEL SERVIDOR A TRAVEZ DE LA ENTIDAD AUTORIZANTE";
+echo "subjectAltName = IP:192.241.208.23" >  $EVC/extfile.cnf
+openssl x509 -req -days 365 -in server.csr -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out server-cert.pem -extfile $EVC/extfile.cnf
+
+
+#####
+#clienteI
+echo "CREANDO CLAVE PRIVADA PARA EL CLIENTE";
+openssl genrsa -out client1-key.pem 2048
+
+echo "CREANDO CSR DEL  CLIENTE";
+openssl req -subj '/CN=client1' -new -key client1-key.pem -out client1.csr
+
+echo "FIRMAR LA CLAVE DEL SERVIDOR A TRAVEZ DE LA ENTIDAD AUTORIZANTE";
+echo "extendedKeyUsage=clientAuth" > extfile.cnf 
+openssl x509 -req -days 365 -in client1.csr -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out client1-cert.pem -extfile extfile.cnf
+
+
+
+#####
+#cliente2
+echo "CREANDO CLAVE PRIVADA PARA EL CLIENTE";
+openssl genrsa -out client2-key.pem 2048
+
+echo "CREANDO CSR DEL  CLIENTE";
+openssl req -subj '/CN=client2' -new -key client2-key.pem -out client2.csr
+
+echo "FIRMAR LA CLAVE DEL SERVIDOR A TRAVEZ DE LA ENTIDAD AUTORIZANTE";
+echo "extendedKeyUsage=clientAuth" > extfile.cnf
+openssl x509 -req -days 365 -in client2.csr -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out client2-cert.pem -extfile extfile.cnf
+
+
+
+#####
+#cliente3
+echo "CREANDO CLAVE PRIVADA PARA EL CLIENTE";
+openssl genrsa -out client3-key.pem 2048
+
+echo "CREANDO CSR DEL  CLIENTE";
+openssl req -subj '/CN=client3' -new -key client3-key.pem -out client3.csr
+
+echo "FIRMAR LA CLAVE DEL SERVIDOR A TRAVEZ DE LA ENTIDAD AUTORIZANTE";
+echo "extendedKeyUsage=clientAuth" > extfile.cnf
+openssl x509 -req -days 365 -in client3.csr -CA ca.pem -CAkey ca-key.pem -CAcreateserial -out client3-cert.pem -extfile extfile.cnf
+
+
+
+
+
+#####
+#ASEGURAR CLAVES
+if [ -d /etc/docker ];
+then
+	rm -r /etc/docker
+	mkdir  /etc/docker
+else
+	mkdir  /etc/docker
+fi
+
+sudo chmod 700 /etc/docker 
+chmod -v 0400 ca-key.pem client1-key.pem client2-key.pem client3-key.pem server-key.pem
+chmod -v 0444 ca.pem server-cert.pem client1-cert.pem client2-cert.pem client3-cert.pem 
+mv ~/docker-tls-temp/{ca,server-key,server-cert}.pem /etc/docker 
+mkdir client1
+mkdir client2
+mkdir client3
+mv ~/docker-tls-temp/{client1-key.pem,client1.csr,client1-cert.pem} client1
+mv ~/docker-tls-temp/{client2-key.pem,client2.csr,client2-cert.pem} client2
+mv ~/docker-tls-temp/{client3-key.pem,client3.csr,client3-cert.pem} client3
+
+echo "OPTIONS='-H tcp://0.0.0.0:2375 --tlsverify --tlscacert=/etc/docker/ca.pem --tlscert=/etc/docker/server-cert.pem --tlskey=/etc/docker/server-key.pem'" > /etc/default/docker_opt
+service docker restart
+
+########
+#MOVER A MI CARPETA DE CONFIGURACIONES LAS LLAVES
+echo "MOVER A LA CARPETA CLIENTES LAS LLAVES DE CLIENTES";
+
+if [ -d ~/config_docker/clientes ];
+then
+	rm -r ~/config_docker/clientes
+	mkdir ~/config_docker/clientes
+else
+	mkdir ~/config_docker/clientes
+fi
+
+
+
+mv {~/docker-tls-temp/client1,~/docker-tls-temp/client2,~/docker-tls-temp/client3} ~/config_docker/clientes
+
+
+if [ -d ~/.docker ];
+then
+        cp ~/docker-tls-temp/* ~/.docker
+else
+	mkdir  ~/.docker
+        cp ~/docker-tls-temp/* ~/.docker
+fi
+rm -r ~/docker-tls-temp/
+
+echo "**********************************************";
+echo "*        SE FINALIZO LA OPERACION            *";
+echo "* Certificados y claves han sido creadas     *";
+echo "* Docker esta en ejecucion con seguridad TLS *";
+echo "**********************************************";

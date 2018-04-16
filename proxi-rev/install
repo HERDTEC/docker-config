@@ -1,0 +1,2 @@
+ mkdir nginx && cd nginx
+ apt-get install -y vim && vim nginx.conf

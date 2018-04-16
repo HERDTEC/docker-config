@@ -1,0 +1,19 @@
+##############
+#USUARIO REMOTO
+  US_REM=root
+
+##########
+#PATH DONDE SE CREARAN DE FORMA TEMPORAL LAS LLAVES
+  EVC=~/docker-tls-temp
+
+##########
+#PATH DDONDE ESTA LA CARPERTA CONFIG_DOCKER
+  EVFC=~/config_docker
+
+##########
+#NOMBRE DE SU SERVIDOR
+  MY_HOST="LNK"
+
+##########
+#IP DE SU SERVIDOR
+  IP_MY_HOST="192.241.208.23"
